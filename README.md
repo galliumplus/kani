@@ -1,2 +1,2 @@
-# kani
-Card reader system for Gallium+
+# Kanmi
+A student card reader system for Gallium+
