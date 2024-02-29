@@ -7,7 +7,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{85346907-45FC-4A4E-8271-C0592330BF1F}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KanmiTests", "KanmiTests\KanmiTests.csproj", "{450B5604-9B1A-42A0-B2E2-5355CB829D04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,5 +26,9 @@ Global
 		{1A998008-1F06-45BA-ABF3-6171A64AA112}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A998008-1F06-45BA-ABF3-6171A64AA112}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A998008-1F06-45BA-ABF3-6171A64AA112}.Release|Any CPU.Build.0 = Release|Any CPU
+		{450B5604-9B1A-42A0-B2E2-5355CB829D04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{450B5604-9B1A-42A0-B2E2-5355CB829D04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{450B5604-9B1A-42A0-B2E2-5355CB829D04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{450B5604-9B1A-42A0-B2E2-5355CB829D04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
