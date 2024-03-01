@@ -1,3 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Kanmi;
+using KanmiDebug;
 
-Console.WriteLine("Hello, World!");
+ICardReaderService service = Services.MakeBlockingService();
+
+service.Subscribe(new LogListener());
+
+service.Start();
