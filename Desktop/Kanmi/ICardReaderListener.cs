@@ -8,20 +8,8 @@ public interface ICardReaderListener
     /// <summary>
     /// Appelé quand un nouveau lecteur est connecté.
     /// </summary>
-    /// <param name="kanmiProtocolVersion">
-    /// La version du protocole de communication utilisé par le lecteur. Actuellement, seule la version 2 (0x02) est
-    /// supportée.
-    /// </param>
-    /// <param name="mfrc522FirmwareVersion">
-    /// La version du micrologiciel du lecteur. Peut être :
-    /// <ul>
-    ///   <li>0x88 pour un clone de Fudan Semiconductor FM17522.</li>
-    ///   <li>0x90 pour un MFRC522 v0.0</li>
-    ///   <li>0x91 pour un MFRC522 v1.0</li>
-    ///   <li>0x92 pour un MFRC522 v2.0</li>
-    /// </ul>
-    /// </param>
-    void OnReaderConnected(byte kanmiProtocolVersion, byte mfrc522FirmwareVersion);
+    /// <param name="readerInfos">Une ligne contenant des informations sur le lecteur et le protocole utilisés.</param>
+    void OnReaderConnected(string readerInfos);
 
     /// <summary>
     /// Appelé quand la connexion avec le lecteur actuel est interrompue.
@@ -33,4 +21,12 @@ public interface ICardReaderListener
     /// </summary>
     /// <param name="uid">L'identifiant unique de la carte.</param>
     void OnEngagedWithPicc(PiccUid uid);
+
+    /// <summary>
+    /// Appelé quand une exception non gérée survient. Si la propriété <see cref="ErrorContext.WasHandled"/> du
+    /// paramètre <paramref name="error"/> est toujours fausse une fois toutes les notifications envoyées, le service
+    /// sera interrompu par l'exception. 
+    /// </summary>
+    /// <param name="error">Les informations sur l'erreur.</param>
+    void OnUnexpectedError(ErrorContext error);
 }

@@ -8,7 +8,7 @@ public interface ICardReaderService
     /// <summary>
     /// Indique si ce service est en cours d'exécution et peut envoyer des notifications.
     /// </summary>
-    bool Active { get; }
+    bool IsActive { get; }
     
     /// <summary>
     /// Abonne <paramref name="listener"/> aux notifications de ce service.
@@ -23,9 +23,9 @@ public interface ICardReaderService
     void Unsubscribe(ICardReaderListener listener);
 
     /// <summary>
-    /// Redémarre le service s'il était arrêté.
+    /// (Re)Démarre le service s'il est arrêté.
     /// </summary>
-    void Restart();
+    void Start();
     
     /// <summary>
     /// Mets le service en pause s'il ne l'est pas déjà.
