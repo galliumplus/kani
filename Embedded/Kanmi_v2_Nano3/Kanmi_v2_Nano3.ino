@@ -87,5 +87,5 @@ void printBytes(uint8_t* value, uint16_t start, uint16_t end) {
 void ledBlink(uint16_t duration) {
   digitalWrite(LED_PIN, HIGH);
   delay(duration);
- digitalWrite(LED_PIN, LOW); 
+  digitalWrite(LED_PIN, LOW); 
 }
