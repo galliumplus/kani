@@ -1,4 +1,4 @@
 # Kanmi
-A student card reader system for Gallium+
+Un système de lecture de cartes étudiantes pour Gallium+
 
 © 2024 l'ETIQ. Tous droits réservés.
