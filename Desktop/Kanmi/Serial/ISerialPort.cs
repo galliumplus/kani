@@ -30,10 +30,16 @@ public interface ISerialPort
     /// <returns><see langword="true"/> si la connexion a bien été établie.</returns>
     bool TryToConnect();
 
+    /// <inheritdoc cref="TryToConnect"/>
+    Task<bool> TryToConnectAsync(CancellationToken ct = default);
+
     /// <summary>
     /// Ferme le port s'il ne l'est pas déjà.
     /// </summary>
     void EnsureIsClosed();
+
+    /// <inheritdoc cref="EnsureIsClosed()"/>
+    Task EnsureIsClosedAsync(CancellationToken ct = default);
 
     /// <summary>
     /// Attends jusqu'à recevoir un message du lecteur.
@@ -43,4 +49,7 @@ public interface ISerialPort
     /// Quand le délai d'attente est dépassé et qu'aucun message n'a pu être lu.
     /// </exception>
     Message ReadNextMessage();
+    
+    /// <inheritdoc cref="ReadNextMessage"/>
+    Task<Message> ReadNextMessageAsync(CancellationToken ct = default);
 }

@@ -1,76 +1,29 @@
-using System.Diagnostics;
 using Kanmi.Protocols;
 using Kanmi.Serial;
 
 namespace Kanmi.ServicesImplementation;
 
-internal class BlockingService : ICardReaderService
+internal class BlockingService: BaseService
 {
-    private readonly ISerialDiscovery serial;
-    private readonly List<ICardReaderListener> listeners;
-    private bool isActive;
-    private ISerialPort? currentReader;
-
-    public BlockingService(ISerialDiscovery serial)
+    public BlockingService(ISerialDiscovery serial) : base(serial)
     {
-        this.serial = serial;
-        this.listeners = new List<ICardReaderListener>();
+    }
+    
+    public override void Start()
+    {
+        base.Start();
         
-        this.isActive = false;
-        this.DisposeOfReader();
-    }
-
-    public bool IsActive => this.isActive;
-
-    public void Subscribe(ICardReaderListener listener)
-    {
-        this.listeners.Add(listener);
-    }
-
-    public void Unsubscribe(ICardReaderListener listener)
-    {
-        this.listeners.Remove(listener);
-    }
-
-    public void Start()
-    {
-        this.isActive = true;
-        while (this.isActive)
+        while (this.IsActive)
         {
             this.Loop();
         }
-    }
-
-    public void Stop()
-    {
-        this.isActive = false;
-    }
-
-    private void NotifyReaderConnected(string readerInfos)
-    {
-        foreach (ICardReaderListener listener in this.listeners) listener.OnReaderConnected(readerInfos);
-    }
-
-    private void NotifyReaderDisconnected()
-    {
-        foreach (ICardReaderListener listener in this.listeners) listener.OnReaderDisconnected();
-    }
-
-    private void NotifyEngagedWithPicc(PiccUid uid)
-    {
-        foreach (ICardReaderListener listener in this.listeners) listener.OnEngagedWithPicc(uid);
-    }
-
-    private void NotifyUnexpectedError(ErrorContext error)
-    {
-        foreach (ICardReaderListener listener in this.listeners) listener.OnUnexpectedError(error);
     }
 
     private void Loop()
     {
         try
         {
-            if (this.currentReader == null)
+            if (this.CurrentReader == null)
             {
                 this.TryToConnect();
                 Thread.Sleep(1000);
@@ -96,12 +49,12 @@ internal class BlockingService : ICardReaderService
 
     private void TryToConnect()
     {
-        foreach (ISerialPort port in this.serial.ListNewlyAvailablePorts())
+        foreach (ISerialPort port in this.ListNewlyAvailablePorts())
         {
             if (port.MayBeACardReader && port.TryToConnect())
             {
-                this.currentReader = port;
-                this.NotifyReaderConnected(this.currentReader.ReaderInfos ?? "<inconnu>");
+                this.UseReader(port);
+                this.NotifyReaderConnected(this.CurrentReader?.ReaderInfos ?? "<inconnu>");
                 break;
             }
         }
@@ -109,11 +62,11 @@ internal class BlockingService : ICardReaderService
 
     private void ReadMessages()
     {
-        if (this.currentReader != null)
+        if (this.CurrentReader != null)
         {
             try
             {
-                Message message = this.currentReader.ReadNextMessage();
+                Message message = this.CurrentReader.ReadNextMessage();
 
                 switch (message)
                 {
@@ -132,11 +85,5 @@ internal class BlockingService : ICardReaderService
                 // on réessaie à la prochaine boucle
             }
         }
-    }
-
-    private void DisposeOfReader()
-    {
-        this.currentReader?.EnsureIsClosed();
-        this.currentReader = null;
     }
 }

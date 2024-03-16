@@ -10,12 +10,13 @@ namespace Kanmi.Serial.NetCore;
 public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
 {
     private const int READ_TIMEOUT = 3000; // 3s
+
     private static readonly ushort?[] knownVendors =
     {
         0x2341, 0x2A03, 0x1B4F, 0x239A, // Arduino AVR standard
         0x1A86, // Vendeur alternatif utilisé dans le G+KR1
-    }; 
-    
+    };
+
     private readonly SerialPort underlying;
     private readonly ushort? vendor;
     private bool lostConnection;
@@ -31,7 +32,7 @@ public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
     {
         this.underlying = new SerialPort(name);
         this.underlying.ReadTimeout = READ_TIMEOUT;
-        
+
         this.lostConnection = false;
         this.vendor = vendor;
         this.currentReaderInfos = null;
@@ -89,6 +90,39 @@ public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
     }
 
     /// <inheritdoc />
+    public async Task<bool> TryToConnectAsync(CancellationToken ct = default)
+    {
+        bool connected = false;
+
+        try
+        {
+            foreach (IProtocol protocolToTry in AllProtocols.ProtocolsList)
+            {
+                ct.ThrowIfCancellationRequested();
+                connected = this.TryToConnectUsing(protocolToTry, ct);
+                if (connected) break;
+            }
+        }
+        catch (Exception error)
+        {
+            if (MeansConnectionWasClosed(error))
+            {
+                connected = false;
+                this.lostConnection = true;
+            }
+            else throw;
+        }
+
+        if (!connected)
+        {
+            // si toutes les tentatives de connection ont échouées, on ferme le port
+            await this.EnsureIsClosedAsync(ct);
+        }
+
+        return connected;
+    }
+
+    /// <inheritdoc />
     public void EnsureIsClosed()
     {
         if (this.underlying.IsOpen)
@@ -98,27 +132,55 @@ public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
     }
 
     /// <inheritdoc />
+    public Task EnsureIsClosedAsync(CancellationToken ct = default)
+    {
+        if (this.underlying.IsOpen)
+        {
+            this.underlying.Close();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Message ReadNextMessage()
     {
+        return this.ReadNextMessageImpl();
+    }
+
+    /// <inheritdoc />
+    public Task<Message> ReadNextMessageAsync(CancellationToken ct = default)
+    {
+        return Task.FromResult(this.ReadNextMessageImpl(ct));
+    }
+
+    private Message ReadNextMessageImpl(CancellationToken ct = default)
+    {
         if (this.protocol == null) throw new InvalidOperationException("Aucune connexion n'a été établie.");
-        
+
         Message result;
 
         try
         {
             string rawMessage = this.underlying.ReadLine();
+            ct.ThrowIfCancellationRequested();
             result = this.protocol.ParseMessage(rawMessage);
         }
-        catch (OperationCanceledException)
+        catch (Exception error)
         {
-            // l'appareil a été déconnecté pendant la réception du message
-            result = new Message.ConnectionEnded();
+            if (MeansConnectionWasClosed(error))
+            {
+                // l'appareil a été déconnecté pendant la réception du message
+                result = new Message.ConnectionEnded();
+                this.lostConnection = true;
+            }
+            else throw;
         }
 
         return result;
     }
 
-    private bool TryToConnectUsing(IProtocol protocolToTry)
+    private bool TryToConnectUsing(IProtocol protocolToTry, CancellationToken ct = default)
     {
         bool success = false;
 
@@ -132,9 +194,11 @@ public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
             else
             {
                 this.underlying.Open();
+                ct.ThrowIfCancellationRequested();
             }
 
             string firstMessage = this.underlying.ReadLine();
+            ct.ThrowIfCancellationRequested();
             if (protocolToTry.CanHandle(firstMessage))
             {
                 this.protocol = protocolToTry;
@@ -149,7 +213,7 @@ public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
         }
         catch (InvalidOperationException)
         {
-            // le port est déjà ouvert par cette class
+            // le port est déjà ouvert par cette classe
         }
 
         return success;
