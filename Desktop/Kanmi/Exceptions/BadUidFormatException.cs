@@ -3,8 +3,11 @@ namespace Kanmi.Exceptions;
 /// <summary>
 /// Indique une erreur avec le format de l'UID d'une carte.
 /// </summary>
-public class BadUidFormatException : KanmiException
+public class BadUidFormatException : BadUidException
 {
-    /// <inheritdoc />
-    public BadUidFormatException(string message) : base(message) { }
+    /// <summary>
+    /// Crée une exception indiquant une erreur avec le format de l'UID d'une carte.
+    /// </summary>
+    /// <param name="uid">L'UID problématique.</param>
+    public BadUidFormatException(string uid) : base($"« {uid} » n'est pas un UID valide.") { }
 }

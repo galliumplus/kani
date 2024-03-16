@@ -17,7 +17,7 @@ public partial class PiccUid
     {
         if (!allowedSizes.Contains(raw.Length))
         {
-            throw new BadUidFormatException($"Un UID ne peut pas avoir une taille de {raw.Length}");
+            throw new BadUidSizeException(raw.Length);
         }
         this.raw = raw;
     }
@@ -61,7 +61,7 @@ public partial class PiccUid
 
         if (!match.Success)
         {
-            throw new BadUidFormatException($"« {uid} » n'est pas un UID valide.");
+            throw new BadUidFormatException(uid);
         }
 
         var bytes = new List<byte>();

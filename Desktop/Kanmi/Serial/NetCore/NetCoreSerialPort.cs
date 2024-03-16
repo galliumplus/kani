@@ -1,5 +1,6 @@
 using System.IO.Ports;
 using System.Text;
+using Kanmi.Exceptions;
 using Kanmi.Protocols;
 
 namespace Kanmi.Serial.NetCore;
@@ -156,7 +157,7 @@ public class NetCoreSerialPort : ISerialPort, IConfigurableSerialPort
 
     private Message ReadNextMessageImpl(CancellationToken ct = default)
     {
-        if (this.protocol == null) throw new InvalidOperationException("Aucune connexion n'a été établie.");
+        if (this.protocol == null) throw new ReadWhileDisconnectedException();
 
         Message result;
 

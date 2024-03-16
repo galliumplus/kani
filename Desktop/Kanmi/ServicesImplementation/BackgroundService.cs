@@ -115,7 +115,7 @@ internal class BackgroundService : BaseService
 
                 case Message.ConnectionEnded:
                     this.NotifyReaderDisconnected();
-                    this.DisposeOfReader();
+                    await this.DisposeOfReaderAsync(ct);
                     break;
                 }
             }
